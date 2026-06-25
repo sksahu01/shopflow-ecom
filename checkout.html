@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Secure Checkout — ShopFlow</title>
+
+  <script src="https://assets.adobedtm.com/18d6771123cb/9d967cb3ad8c/launch-38c5a1a5e1b9.min.js" async></script>
+
+  <script>
+    window.digitalData = {
+      page: {
+        pageInfo: {
+          pageName: "shopflow:checkout_funnel",
+          siteSection: "transaction",
+          server: "production"
+        }
+      },
+      transaction: {}
+    };
+
+    function adobeTrack(event, data) {
+      window.digitalData = Object.assign(window.digitalData, data || {});
+      if (window._satellite && typeof window._satellite.track === 'function') {
+        window._satellite.track(event, data);
+      }
+    }
+  </script>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet" />
+
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --ink: #1A1A1A; --ink-muted: #6B6B6B; --surface: #FFFFFF; --surface-off: #F7F5F2;
+      --border: #E2DED9; --accent: #2C5282; --accent-hover: #1A3A5C;
+      --radius-sm: 6px; --radius-md: 10px; --radius-lg: 16px;
+      --font-display: 'Playfair Display', serif; --font-body: 'Inter', sans-serif;
+      --nav-h: 64px;
+    }
+    body { font-family: var(--font-body); background: var(--surface-off); color: var(--ink); padding-top: var(--nav-h); }
+    
+    .nav { position: fixed; top: 0; left: 0; right: 0; z-index: 900; height: var(--nav-h); background: var(--surface); border-bottom: 1px solid var(--border); display: flex; align-items: center; padding: 0 2rem; }
+    .nav-brand { font-family: var(--font-display); font-size: 1.35rem; color: var(--ink); text-decoration: none; }
+    .nav-brand span { color: var(--accent); }
+
+    .checkout-layout { display: grid; grid-template-columns: 1.2fr 1fr; max-width: 1100px; margin: 3rem auto; gap: 3rem; padding: 0 2rem; }
+    .form-card, .summary-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 2.5rem; }
+    .section-title { font-family: var(--font-display); font-size: 1.25rem; margin-bottom: 1.5rem; border-bottom: 1px solid var(--border); padding-bottom: 0.5rem; }
+    
+    .form-group { display: flex; flex-direction: column; gap: 0.4rem; margin-bottom: 1.2rem; }
+    .form-label { font-size: 0.75rem; font-weight: 600; text-transform: uppercase; color: var(--ink-muted); }
+    .form-input { padding: 0.7rem 0.9rem; border: 1.5px solid var(--border); border-radius: var(--radius-sm); font-family: var(--font-body); font-size: 0.9rem; outline: none; }
+    
+    .summary-item { display: flex; justify-content: space-between; font-weight: 500; font-size: 1.05rem; padding-bottom: 1rem; border-bottom: 1px solid var(--border); }
+    .total-row { display: flex; justify-content: space-between; font-size: 1.25rem; font-weight: 600; margin-top: 1.5rem; }
+    .btn-pay { width: 100%; margin-top: 2rem; padding: 1rem; background: var(--accent); color: #fff; border: none; border-radius: var(--radius-md); font-size: 1rem; font-weight: 600; cursor: pointer; }
+    .btn-pay:hover { background: var(--accent-hover); }
+    .success-panel { text-align: center; padding: 4rem 2rem; display: none; background: var(--surface); border-radius: var(--radius-lg); border: 1px solid var(--border); max-width: 500px; margin: 5rem auto; }
+  </style>
+  <script src="https://assets.adobedtm.com/18d6771123cb/9d967cb3ad8c/launch-38c5a1a5e1b9.min.js" async></script>
+</head>
+<body>
+
+  <nav class="nav"><a class="nav-brand" href="index.html">Shop<span>Flow</span></a></nav>
+
+  <div class="container" id="mainCheckout">
+    <div class="checkout-layout">
+      <div class="form-card">
+        <h2 class="section-title">Shipping Context</h2>
+        <form id="orderForm" onsubmit="executePurchase(event)">
+          <div class="form-group">
+            <label class="form-label">Full Name</label>
+            <input type="text" id="custName" class="form-input" required placeholder="Kabir Jha" />
+          </div>
+          <div class="form-group">
+            <label class="form-label">Destination Address</label>
+            <input type="text" class="form-input" required placeholder="45, Amrita Shergill Marg" />
+          </div>
+          <button type="submit" class="btn-pay" id="paySubmitBtn">Authorize Order</button>
+        </form>
+      </div>
+
+      <div class="summary-card">
+        <h2 class="section-title">Order Ledger</h2>
+        <div class="summary-item">
+          <span id="itemName">Item Allocation</span>
+          <span id="itemPrice">₹0</span>
+        </div>
+        <div class="total-row">
+          <span>Aggregate Liability</span>
+          <span id="totalPrice">₹0</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="success-panel" id="successPanel">
+    <h1 style="font-family: var(--font-display); margin-bottom: 1rem;">Order Confirmed</h1>
+    <p style="color: var(--ink-muted); margin-bottom: 2rem;">Your transaction has processed cleanly into our fulfillment stream.</p>
+    <a href="shop.html" class="form-input" style="text-decoration:none; background: var(--ink); color:#fff;">Return to Catalog</a>
+  </div>
+
+  <script>
+    const products = {
+      '1': { id: 1, name: 'Wabi Lounge Chair', price: 24999 },
+      '2': { id: 2, name: 'Pendant Orb Light', price: 8499 }
+    };
+
+    const urlParams = new URLSearchParams(window.location.search);
+    const activeId = urlParams.get('id') || '1';
+    const targetProduct = products[activeId];
+
+    if (targetProduct) {
+      document.getElementById('itemName').textContent = targetProduct.name;
+      document.getElementById('itemPrice').textContent = `₹${targetProduct.price.toLocaleString()}`;
+      document.getElementById('totalPrice').textContent = `₹${targetProduct.price.toLocaleString()}`;
+      document.getElementById('paySubmitBtn').textContent = `Authorize Order — ₹${targetProduct.price.toLocaleString()}`;
+    }
+
+    function executePurchase(e) {
+      e.preventDefault();
+      
+      const orderRef = 'SF-' + Math.floor(100000 + Math.random() * 900000);
+      
+      adobeTrack('purchase_confirmation', {
+        transaction: {
+          transactionID: orderRef,
+          transactionTotal: targetProduct.price,
+          itemProfile: targetProduct.name
+        }
+      });
+
+      document.getElementById('mainCheckout').style.display = 'none';
+      document.getElementById('successPanel').style.display = 'block';
+    }
+  </script>
+</body>
+</html>
