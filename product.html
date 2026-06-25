@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>View Item — ShopFlow</title>
+
+  <script src="https://assets.adobedtm.com/18d6771123cb/9d967cb3ad8c/launch-38c5a1a5e1b9.min.js" async></script>
+
+  <script>
+    window.digitalData = {
+      page: {
+        pageInfo: {
+          pageName: "shopflow:product_detail",
+          siteSection: "shop",
+          server: "production"
+        }
+      },
+      product: []
+    };
+
+    function adobeTrack(event, data) {
+      window.digitalData = Object.assign(window.digitalData, data || {});
+      if (window._satellite && typeof window._satellite.track === 'function') {
+        window._satellite.track(event, data);
+      }
+    }
+  </script>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet" />
+
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --ink: #1A1A1A; --ink-muted: #6B6B6B; --surface: #FFFFFF; --surface-off: #F7F5F2; --surface-warm: #F0EDE8;
+      --border: #E2DED9; --accent: #2C5282; --accent-hover: #1A3A5C; --radius-md: 10px; --radius-lg: 16px;
+      --font-display: 'Playfair Display', serif; --font-body: 'Inter', sans-serif;
+      --nav-h: 64px; --trans: 0.22s cubic-bezier(0.4,0,0.2,1);
+    }
+    body { font-family: var(--font-body); background: var(--surface-off); color: var(--ink); padding-top: var(--nav-h); }
+    
+    .nav { position: fixed; top: 0; left: 0; right: 0; z-index: 900; height: var(--nav-h); background: var(--surface); border-bottom: 1px solid var(--border); display: flex; align-items: center; padding: 0 2rem; }
+    .nav-brand { font-family: var(--font-display); font-size: 1.35rem; color: var(--ink); text-decoration: none; }
+    .nav-brand span { color: var(--accent); }
+
+    .pdp-wrap { display: grid; grid-template-columns: 1fr 1fr; min-height: calc(100vh - var(--nav-h)); background: var(--surface); }
+    .pdp-gallery { background: var(--surface-warm); padding: 4rem; display: flex; align-items: center; justify-content: center; }
+    .pdp-gallery img { max-width: 100%; border-radius: var(--radius-lg); object-fit: cover; box-shadow: 0 8px 32px rgba(0,0,0,0.05); }
+    .pdp-info { padding: 5rem; display: flex; flex-direction: column; justify-content: center; gap: 1.5rem; }
+    .pdp-cat { font-size: 0.75rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.1em; color: var(--ink-muted); }
+    .pdp-name { font-family: var(--font-display); font-size: 2.5rem; }
+    .pdp-price { font-size: 1.75rem; font-weight: 600; color: var(--ink); }
+    .pdp-desc { font-size: 0.95rem; color: var(--ink-muted); line-height: 1.75; }
+    .btn-add-cart { padding: 1rem; background: var(--accent); color: #fff; border: none; border-radius: var(--radius-md); font-size: 1rem; font-weight: 600; cursor: pointer; transition: background var(--trans); text-decoration: none; text-align: center; }
+    .btn-add-cart:hover { background: var(--accent-hover); }
+  </style>
+  <script src="https://assets.adobedtm.com/18d6771123cb/9d967cb3ad8c/launch-38c5a1a5e1b9.min.js" async></script>
+</head>
+<body>
+
+  <nav class="nav"><a class="nav-brand" href="index.html">Shop<span>Flow</span></a></nav>
+
+  <div class="pdp-wrap" id="pdpContent"></div>
+
+  <script>
+    const products = {
+      '1': { id: 1, name: 'Wabi Lounge Chair', cat: 'Furniture', price: 24999, img: 'https://images.unsplash.com/photo-1567538096630-e0c55bd6374c?w=800&auto=format&fit=crop&q=80', desc: 'Crafted from premium solid ash with architectural textured bouclé upholstery.' },
+      '2': { id: 2, name: 'Pendant Orb Light', cat: 'Lighting', price: 8499, img: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=800&auto=format&fit=crop&q=80', desc: 'Hand-blown structured glass globe emitting calibrated ambient light spectrums.' }
+    };
+
+    const urlParams = new URLSearchParams(window.location.search);
+    const productId = urlParams.get('id') || '1';
+    const product = products[productId];
+
+    if (product) {
+      document.getElementById('pdpContent').innerHTML = `
+        <div class="pdp-gallery"><img src="${product.img}" alt="${product.name}" /></div>
+        <div class="pdp-info">
+          <p class="pdp-cat">${product.cat}</p>
+          <h1 class="pdp-name">${product.name}</h1>
+          <p class="pdp-price">₹${product.price.toLocaleString()}</p>
+          <p class="pdp-desc">${product.desc}</p>
+          <a class="btn-add-cart" href="checkout.html?id=${product.id}">Acquire Piece — Secure Checkout</a>
+        </div>
+      `;
+
+      // Update Analytics Schema context dynamically
+      window.digitalData.product = [{
+        productInfo: { productID: product.id, productName: product.name },
+        price: product.price
+      }];
+      adobeTrack('product_view', { eVar5: product.name, products: `;${product.id};;;` });
+    }
+  </script>
+</body>
+</html>
