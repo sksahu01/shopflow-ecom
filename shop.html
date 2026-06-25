@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>All Products — ShopFlow</title>
+
+  <script src="https://assets.adobedtm.com/18d6771123cb/9d967cb3ad8c/launch-38c5a1a5e1b9.min.js" async></script>
+
+  <script>
+    window.digitalData = {
+      page: {
+        pageInfo: {
+          pageName: "shopflow:product_listing",
+          siteSection: "shop",
+          server: "production"
+        }
+      },
+      category: { primaryCategory: "All" }
+    };
+
+    function adobeTrack(event, data) {
+      window.digitalData = Object.assign(window.digitalData, data || {});
+      if (window._satellite && typeof window._satellite.track === 'function') {
+        window._satellite.track(event, data);
+      }
+    }
+  </script>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet" />
+
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --ink: #1A1A1A; --ink-muted: #6B6B6B; --ink-faint: #A8A8A8;
+      --surface: #FFFFFF; --surface-off: #F7F5F2; --surface-warm: #F0EDE8;
+      --border: #E2DED9; --accent: #2C5282; --radius-sm: 6px; --radius-lg: 16px;
+      --font-display: 'Playfair Display', serif; --font-body: 'Inter', sans-serif;
+      --nav-h: 64px; --trans: 0.22s cubic-bezier(0.4,0,0.2,1);
+    }
+    body { font-family: var(--font-body); background: var(--surface-off); color: var(--ink); padding-top: var(--nav-h); }
+    
+    .nav { position: fixed; top: 0; left: 0; right: 0; z-index: 900; height: var(--nav-h); background: var(--surface); border-bottom: 1px solid var(--border); display: flex; align-items: center; padding: 0 2rem; }
+    .nav-brand { font-family: var(--font-display); font-size: 1.35rem; font-weight: 600; color: var(--ink); text-decoration: none; margin-right: 2.5rem; }
+    .nav-brand span { color: var(--accent); }
+    .nav-tabs { display: flex; height: var(--nav-h); }
+    .nav-tab { padding: 0 1.25rem; display: flex; align-items: center; font-size: 0.875rem; font-weight: 500; color: var(--ink-muted); text-decoration: none; border-bottom: 2.5px solid transparent; }
+    .nav-tab.active { color: var(--accent); border-bottom-color: var(--accent); }
+
+    .plp-header { padding: 3rem 5rem 1rem; }
+    .plp-header h2 { font-family: var(--font-display); font-size: 2rem; }
+    
+    .filter-row { display: flex; gap: 0.6rem; padding: 0 5rem 2rem; align-items: center; }
+    .filter-chip { padding: 0.5rem 1.2rem; border-radius: 99px; border: 1.5px solid var(--border); background: var(--surface); color: var(--ink-muted); font-size: 0.85rem; font-weight: 500; cursor: pointer; transition: all var(--trans); }
+    .filter-chip.active { background: var(--accent); color: #fff; border-color: var(--accent); }
+    
+    .product-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 2rem; padding: 0 5rem 4rem; }
+    .product-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); overflow: hidden; transition: transform var(--trans); display: flex; flex-direction: column; }
+    .product-card:hover { transform: translateY(-4px); }
+    .product-img-wrap { aspect-ratio: 4/3; background: var(--surface-warm); position: relative; }
+    .product-img-wrap img { width: 100%; height: 100%; object-fit: cover; }
+    .product-info { padding: 1.5rem; flex: 1; display: flex; flex-direction: column; }
+    .product-cat { font-size: 0.7rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; color: var(--ink-faint); margin-bottom: 0.4rem; }
+    .product-name { font-size: 1rem; font-weight: 500; margin-bottom: 0.5rem; text-decoration: none; color: var(--ink); }
+    .price-row { margin-bottom: 1rem; font-size: 1.1rem; font-weight: 600; }
+    .view-btn { width: 100%; text-align: center; padding: 0.75rem; background: var(--surface-off); color: var(--ink); border: 1.5px solid var(--border); border-radius: var(--radius-sm); font-size: 0.85rem; font-weight: 500; text-decoration: none; transition: all var(--trans); margin-top: auto; display: block; }
+    .view-btn:hover { background: var(--accent); color: #fff; border-color: var(--accent); }
+  </style>
+  <script src="https://assets.adobedtm.com/18d6771123cb/9d967cb3ad8c/launch-38c5a1a5e1b9.min.js" async></script>
+</head>
+<body>
+
+  <nav class="nav">
+    <a class="nav-brand" href="index.html">Shop<span>Flow</span></a>
+    <div class="nav-tabs">
+      <a class="nav-tab" href="index.html">Home</a>
+      <a class="nav-tab active" href="shop.html">Shop</a>
+      <a class="nav-tab" href="about.html">About</a>
+      <a class="nav-tab" href="contact.html">Contact</a>
+    </div>
+  </nav>
+
+  <div class="plp-header">
+    <h2>Our Collection</h2>
+  </div>
+
+  <div class="filter-row">
+    <div class="filter-chip active" onclick="filterCatalog('All', this)">All Furniture</div>
+    <div class="filter-chip" onclick="filterCatalog('Furniture', this)">Seating</div>
+    <div class="filter-chip" onclick="filterCatalog('Lighting', this)">Lighting</div>
+  </div>
+
+  <div class="product-grid" id="catalogGrid"></div>
+
+  <script>
+    const products = [
+      { id: 1, name: 'Wabi Lounge Chair', cat: 'Furniture', price: 24999, img: 'https://images.unsplash.com/photo-1567538096630-e0c55bd6374c?w=600&auto=format&fit=crop&q=75' },
+      { id: 2, name: 'Pendant Orb Light', cat: 'Lighting', price: 8499, img: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=600&auto=format&fit=crop&q=75' }
+    ];
+
+    function renderCatalog(filter = 'All') {
+      const items = filter === 'All' ? products : products.filter(p => p.cat === filter);
+      document.getElementById('catalogGrid').innerHTML = items.map(p => `
+        <div class="product-card">
+          <div class="product-img-wrap"><img src="${p.img}" alt="${p.name}" /></div>
+          <div class="product-info">
+            <p class="product-cat">${p.cat}</p>
+            <a class="product-name" href="product.html?id=${p.id}">${p.name}</a>
+            <div class="price-row">₹${p.price.toLocaleString()}</div>
+            <a class="view-btn" href="product.html?id=${p.id}">Inspect Piece</a>
+          </div>
+        </div>
+      `).join('');
+
+      adobeTrack('product_listing_view', { 
+        category: { primaryCategory: filter },
+        list1: items.map(p => p.id).join(',')
+      });
+    }
+
+    function filterCatalog(cat, el) {
+      document.querySelectorAll('.filter-chip').forEach(c => c.classList.remove('active'));
+      el.classList.add('active');
+      renderCatalog(cat);
+    }
+
+    renderCatalog();
+  </script>
+</body>
+</html>
