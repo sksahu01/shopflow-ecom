@@ -39,6 +39,8 @@
     .nav-tabs { display: flex; height: var(--nav-h); }
     .nav-tab { padding: 0 1.25rem; display: flex; align-items: center; font-size: 0.875rem; font-weight: 500; color: var(--ink-muted); text-decoration: none; border-bottom: 2.5px solid transparent; }
     .nav-tab.active { color: var(--accent); border-bottom-color: var(--accent); }
+    .cart-badge { display: inline-flex; min-width: 1.4rem; height: 1.4rem; align-items: center; justify-content: center; border-radius: 99px; background: var(--accent); color: #fff; font-size: 0.72rem; margin-left: 0.25rem; }
+    .cart-badge[hidden] { display: none; }
 
     .about-hero { background: var(--surface); padding: 6rem 2rem; text-align: center; border-bottom: 1px solid var(--border); }
     .about-hero h1 { font-family: var(--font-display); font-size: 3rem; margin-bottom: 1.5rem; }
@@ -60,6 +62,7 @@
       <a class="nav-tab" href="shop.html">Shop</a>
       <a class="nav-tab active" href="about.html">About</a>
       <a class="nav-tab" href="contact.html">Contact</a>
+      <a class="nav-tab" href="cart.html">Cart <span class="cart-badge" data-cart-count hidden>0</span></a>
     </div>
   </nav>
 
@@ -79,5 +82,6 @@
     </div>
   </div>
 
+  <script src="cart.js"></script>
 </body>
 </html>
