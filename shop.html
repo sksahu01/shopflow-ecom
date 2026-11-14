@@ -30,6 +30,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet" />
+  <script src="cart.js"></script>
 
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -48,6 +49,8 @@
     .nav-tabs { display: flex; height: var(--nav-h); }
     .nav-tab { padding: 0 1.25rem; display: flex; align-items: center; font-size: 0.875rem; font-weight: 500; color: var(--ink-muted); text-decoration: none; border-bottom: 2.5px solid transparent; }
     .nav-tab.active { color: var(--accent); border-bottom-color: var(--accent); }
+    .cart-badge { display: inline-flex; min-width: 1.4rem; height: 1.4rem; align-items: center; justify-content: center; border-radius: 99px; background: var(--accent); color: #fff; font-size: 0.72rem; margin-left: 0.25rem; }
+    .cart-badge[hidden] { display: none; }
 
     .plp-header { padding: 3rem 5rem 1rem; }
     .plp-header h2 { font-family: var(--font-display); font-size: 2rem; }
@@ -59,14 +62,15 @@
     .product-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 2rem; padding: 0 5rem 4rem; }
     .product-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); overflow: hidden; transition: transform var(--trans); display: flex; flex-direction: column; }
     .product-card:hover { transform: translateY(-4px); }
-    .product-img-wrap { aspect-ratio: 4/3; background: var(--surface-warm); position: relative; }
-    .product-img-wrap img { width: 100%; height: 100%; object-fit: cover; }
+    .product-img-wrap { height: 280px; background: var(--surface-warm); position: relative; overflow: hidden; }
+    .product-img-wrap img { display: block; width: 100%; height: 100%; object-fit: cover; }
     .product-info { padding: 1.5rem; flex: 1; display: flex; flex-direction: column; }
     .product-cat { font-size: 0.7rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; color: var(--ink-faint); margin-bottom: 0.4rem; }
     .product-name { font-size: 1rem; font-weight: 500; margin-bottom: 0.5rem; text-decoration: none; color: var(--ink); }
     .price-row { margin-bottom: 1rem; font-size: 1.1rem; font-weight: 600; }
     .view-btn { width: 100%; text-align: center; padding: 0.75rem; background: var(--surface-off); color: var(--ink); border: 1.5px solid var(--border); border-radius: var(--radius-sm); font-size: 0.85rem; font-weight: 500; text-decoration: none; transition: all var(--trans); margin-top: auto; display: block; }
     .view-btn:hover { background: var(--accent); color: #fff; border-color: var(--accent); }
+    @media (max-width: 700px) { .product-img-wrap { height: 220px; } }
   </style>
   <script src="https://assets.adobedtm.com/18d6771123cb/9d967cb3ad8c/launch-38c5a1a5e1b9.min.js" async></script>
 </head>
@@ -80,6 +84,7 @@
       <a class="nav-tab" href="about.html">About</a>
       <a class="nav-tab" href="contact.html">Contact</a>
     </div>
+    <a class="nav-tab" href="cart.html">Cart <span class="cart-badge" data-cart-count hidden>0</span></a>
   </nav>
 
   <div class="plp-header">
@@ -87,18 +92,16 @@
   </div>
 
   <div class="filter-row">
-    <div class="filter-chip active" onclick="filterCatalog('All', this)">All Furniture</div>
-    <div class="filter-chip" onclick="filterCatalog('Furniture', this)">Seating</div>
+    <div class="filter-chip active" onclick="filterCatalog('All', this)">All Products</div>
+    <div class="filter-chip" onclick="filterCatalog('Furniture', this)">Furniture</div>
     <div class="filter-chip" onclick="filterCatalog('Lighting', this)">Lighting</div>
+    <div class="filter-chip" onclick="filterCatalog('Decor', this)">Decor</div>
   </div>
 
   <div class="product-grid" id="catalogGrid"></div>
 
   <script>
-    const products = [
-      { id: 1, name: 'Wabi Lounge Chair', cat: 'Furniture', price: 24999, img: 'https://images.unsplash.com/photo-1567538096630-e0c55bd6374c?w=600&auto=format&fit=crop&q=75' },
-      { id: 2, name: 'Pendant Orb Light', cat: 'Lighting', price: 8499, img: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=600&auto=format&fit=crop&q=75' }
-    ];
+    const products = Object.values(ShopFlowCart.products);
 
     function renderCatalog(filter = 'All') {
       const items = filter === 'All' ? products : products.filter(p => p.cat === filter);
@@ -108,8 +111,9 @@
           <div class="product-info">
             <p class="product-cat">${p.cat}</p>
             <a class="product-name" href="product.html?id=${p.id}">${p.name}</a>
-            <div class="price-row">₹${p.price.toLocaleString()}</div>
+            <div class="price-row">₹${p.price.toLocaleString('en-IN')}</div>
             <a class="view-btn" href="product.html?id=${p.id}">Inspect Piece</a>
+            <button class="view-btn add-to-cart-btn" type="button" onclick="addCatalogItem(${p.id}, this)">Add to Cart</button>
           </div>
         </div>
       `).join('');
@@ -124,6 +128,17 @@
       document.querySelectorAll('.filter-chip').forEach(c => c.classList.remove('active'));
       el.classList.add('active');
       renderCatalog(cat);
+    }
+
+    function addCatalogItem(productId, button) {
+      if (!ShopFlowCart.addToCart(productId)) return;
+      const originalLabel = button.textContent;
+      button.textContent = 'Added to Cart';
+      button.disabled = true;
+      window.setTimeout(() => {
+        button.textContent = originalLabel;
+        button.disabled = false;
+      }, 1200);
     }
 
     renderCatalog();
