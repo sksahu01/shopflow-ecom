@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Your Cart — ShopFlow</title>
+  <script src="cart.js"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root { --ink: #1A1A1A; --ink-muted: #6B6B6B; --surface: #FFFFFF; --surface-off: #F7F5F2; --border: #E2DED9; --accent: #2C5282; --accent-hover: #1A3A5C; --radius-md: 10px; --radius-lg: 16px; --font-display: 'Playfair Display', serif; --font-body: 'Inter', sans-serif; --nav-h: 64px; }
+    body { font-family: var(--font-body); background: var(--surface-off); color: var(--ink); padding-top: var(--nav-h); }
+    .nav { position: fixed; top: 0; left: 0; right: 0; z-index: 900; height: var(--nav-h); background: var(--surface); border-bottom: 1px solid var(--border); display: flex; align-items: center; padding: 0 2rem; }
+    .nav-brand { font-family: var(--font-display); font-size: 1.35rem; font-weight: 600; color: var(--ink); text-decoration: none; margin-right: 2.5rem; }
+    .nav-brand span { color: var(--accent); }
+    .nav-tabs { display: flex; height: var(--nav-h); }
+    .nav-tab { padding: 0 1.25rem; display: flex; align-items: center; font-size: 0.875rem; font-weight: 500; color: var(--ink-muted); text-decoration: none; border-bottom: 2.5px solid transparent; }
+    .nav-tab.active { color: var(--accent); border-bottom-color: var(--accent); }
+    .cart-link { margin-left: auto; color: var(--ink); text-decoration: none; font-size: 0.875rem; font-weight: 600; }
+    .cart-badge { display: inline-flex; min-width: 1.4rem; height: 1.4rem; align-items: center; justify-content: center; border-radius: 99px; background: var(--accent); color: #fff; font-size: 0.72rem; margin-left: 0.25rem; }
+    .cart-badge[hidden] { display: none; }
+    .cart-page { max-width: 1000px; margin: 3rem auto; padding: 0 1.5rem 4rem; }
+    .page-title { font-family: var(--font-display); font-size: 2.2rem; margin-bottom: 2rem; }
+    .cart-layout { display: grid; grid-template-columns: 1.5fr 1fr; gap: 2rem; }
+    .cart-card, .summary-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 1.5rem; }
+    .cart-item { display: grid; grid-template-columns: 96px 1fr auto; gap: 1rem; align-items: center; padding: 1rem 0; border-bottom: 1px solid var(--border); }
+    .cart-item:first-child { padding-top: 0; }
+    .cart-item:last-child { border-bottom: 0; padding-bottom: 0; }
+    .cart-item img { width: 96px; height: 76px; object-fit: cover; border-radius: var(--radius-md); }
+    .item-name { font-weight: 600; margin-bottom: 0.35rem; }
+    .item-price { color: var(--ink-muted); font-size: 0.9rem; }
+    .quantity-control { display: flex; align-items: center; gap: 0.5rem; margin-top: 0.7rem; }
+    .quantity-control button { width: 1.8rem; height: 1.8rem; border: 1px solid var(--border); background: var(--surface-off); border-radius: 4px; cursor: pointer; }
+    .quantity-control input { width: 2.4rem; text-align: center; border: 0; font: inherit; background: transparent; }
+    .remove-button { border: 0; background: transparent; color: var(--ink-muted); cursor: pointer; font-size: 0.8rem; text-decoration: underline; }
+    .summary-title { font-family: var(--font-display); font-size: 1.3rem; margin-bottom: 1.5rem; }
+    .summary-row { display: flex; justify-content: space-between; margin-bottom: 1rem; color: var(--ink-muted); }
+    .summary-total { display: flex; justify-content: space-between; border-top: 1px solid var(--border); padding-top: 1rem; font-size: 1.2rem; font-weight: 600; }
+    .checkout-button, .continue-button { display: block; text-align: center; text-decoration: none; border-radius: var(--radius-md); padding: 0.9rem; margin-top: 1.5rem; font-weight: 600; }
+    .checkout-button { background: var(--accent); color: #fff; }
+    .continue-button { border: 1px solid var(--border); color: var(--ink); }
+    .empty-cart { text-align: center; padding: 3rem 1rem; color: var(--ink-muted); }
+    .empty-cart a { display: inline-block; margin-top: 1rem; color: var(--accent); font-weight: 600; }
+    @media (max-width: 700px) { .nav { padding: 0 1rem; } .nav-tabs { display: none; } .cart-layout { grid-template-columns: 1fr; } }
+  </style>
+</head>
+<body>
+  <nav class="nav">
+    <a class="nav-brand" href="index.html">Shop<span>Flow</span></a>
+    <div class="nav-tabs"><a class="nav-tab" href="index.html">Home</a><a class="nav-tab active" href="cart.html">Cart</a></div>
+    <a class="cart-link" href="cart.html">Cart <span class="cart-badge" data-cart-count hidden>0</span></a>
+  </nav>
+  <main class="cart-page">
+    <h1 class="page-title">Your Cart</h1>
+    <div id="cartContent"></div>
+  </main>
+  <script>
+    function renderCart() {
+      const cart = ShopFlowCart.getCart();
+      const content = document.getElementById('cartContent');
+      if (!cart.length) {
+        content.innerHTML = '<div class="cart-card empty-cart"><p>Your cart is waiting for something considered.</p><a href="shop.html">Explore the collection</a></div>';
+        return;
+      }
+
+      const itemMarkup = cart.map(item => `
+        <div class="cart-item">
+          <img src="${item.img}" alt="${item.name}" />
+          <div>
+            <p class="item-name">${item.name}</p>
+            <p class="item-price">${ShopFlowCart.formatPrice(item.price)} each</p>
+            <div class="quantity-control">
+              <button type="button" aria-label="Decrease ${item.name} quantity" onclick="changeQuantity(${item.id}, ${item.quantity - 1})">−</button>
+              <input aria-label="${item.name} quantity" value="${item.quantity}" readonly />
+              <button type="button" aria-label="Increase ${item.name} quantity" onclick="changeQuantity(${item.id}, ${item.quantity + 1})">+</button>
+            </div>
+          </div>
+          <div>
+            <p class="item-name">${ShopFlowCart.formatPrice(item.price * item.quantity)}</p>
+            <button type="button" class="remove-button" onclick="removeItem(${item.id})">Remove</button>
+          </div>
+        </div>
+      `).join('');
+
+      content.innerHTML = `
+        <div class="cart-layout">
+          <section class="cart-card" aria-label="Cart items">${itemMarkup}</section>
+          <aside class="summary-card">
+            <h2 class="summary-title">Order Summary</h2>
+            <div class="summary-row"><span>Items (${ShopFlowCart.getCartCount()})</span><span>${ShopFlowCart.formatPrice(ShopFlowCart.getCartTotal())}</span></div>
+            <div class="summary-row"><span>Shipping</span><span>Complimentary</span></div>
+            <div class="summary-total"><span>Total</span><span>${ShopFlowCart.formatPrice(ShopFlowCart.getCartTotal())}</span></div>
+            <a class="checkout-button" href="checkout.html">Proceed to checkout</a>
+            <a class="continue-button" href="shop.html">Continue shopping</a>
+          </aside>
+        </div>`;
+    }
+
+    function changeQuantity(productId, quantity) {
+      if (quantity < 1) {
+        removeItem(productId);
+        return;
+      }
+      ShopFlowCart.updateQuantity(productId, quantity);
+      renderCart();
+    }
+
+    function removeItem(productId) {
+      ShopFlowCart.removeFromCart(productId);
+      renderCart();
+    }
+
+    window.addEventListener('shopflow:cart-updated', renderCart);
+    renderCart();
+  </script>
+</body>
+</html>
