@@ -30,6 +30,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet" />
+  <script src="cart.js"></script>
 
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -45,6 +46,9 @@
     .nav { position: fixed; top: 0; left: 0; right: 0; z-index: 900; height: var(--nav-h); background: var(--surface); border-bottom: 1px solid var(--border); display: flex; align-items: center; padding: 0 2rem; }
     .nav-brand { font-family: var(--font-display); font-size: 1.35rem; color: var(--ink); text-decoration: none; }
     .nav-brand span { color: var(--accent); }
+    .nav-tab { padding: 0 1.25rem; display: flex; align-items: center; height: var(--nav-h); font-size: 0.875rem; color: var(--ink-muted); text-decoration: none; }
+    .cart-badge { display: inline-flex; min-width: 1.4rem; height: 1.4rem; align-items: center; justify-content: center; border-radius: 99px; background: var(--accent); color: #fff; font-size: 0.72rem; margin-left: 0.25rem; }
+    .cart-badge[hidden] { display: none; }
 
     .checkout-layout { display: grid; grid-template-columns: 1.2fr 1fr; max-width: 1100px; margin: 3rem auto; gap: 3rem; padding: 0 2rem; }
     .form-card, .summary-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 2.5rem; }
@@ -64,7 +68,11 @@
 </head>
 <body>
 
-  <nav class="nav"><a class="nav-brand" href="index.html">Shop<span>Flow</span></a></nav>
+  <nav class="nav">
+    <a class="nav-brand" href="index.html">Shop<span>Flow</span></a>
+    <a class="nav-tab" href="shop.html">Shop</a>
+    <a class="nav-tab" href="cart.html">Cart <span class="cart-badge" data-cart-count hidden>0</span></a>
+  </nav>
 
   <div class="container" id="mainCheckout">
     <div class="checkout-layout">
@@ -85,10 +93,7 @@
 
       <div class="summary-card">
         <h2 class="section-title">Order Ledger</h2>
-        <div class="summary-item">
-          <span id="itemName">Item Allocation</span>
-          <span id="itemPrice">₹0</span>
-        </div>
+        <div id="summaryItems"></div>
         <div class="total-row">
           <span>Aggregate Liability</span>
           <span id="totalPrice">₹0</span>
@@ -104,20 +109,28 @@
   </div>
 
   <script>
-    const products = {
-      '1': { id: 1, name: 'Wabi Lounge Chair', price: 24999 },
-      '2': { id: 2, name: 'Pendant Orb Light', price: 8499 }
-    };
-
     const urlParams = new URLSearchParams(window.location.search);
-    const activeId = urlParams.get('id') || '1';
-    const targetProduct = products[activeId];
+    if (!ShopFlowCart.getCartCount() && urlParams.get('id')) {
+      ShopFlowCart.addToCart(urlParams.get('id'));
+    }
 
-    if (targetProduct) {
-      document.getElementById('itemName').textContent = targetProduct.name;
-      document.getElementById('itemPrice').textContent = `₹${targetProduct.price.toLocaleString()}`;
-      document.getElementById('totalPrice').textContent = `₹${targetProduct.price.toLocaleString()}`;
-      document.getElementById('paySubmitBtn').textContent = `Authorize Order — ₹${targetProduct.price.toLocaleString()}`;
+    const cart = ShopFlowCart.getCart();
+    const cartTotal = ShopFlowCart.getCartTotal();
+    const summaryItems = document.getElementById('summaryItems');
+    const paySubmitBtn = document.getElementById('paySubmitBtn');
+
+    if (!cart.length) {
+      summaryItems.innerHTML = '<div class="summary-item"><span>Your cart is empty</span><a href="shop.html">Shop</a></div>';
+      paySubmitBtn.disabled = true;
+    } else {
+      summaryItems.innerHTML = cart.map(item => `
+        <div class="summary-item">
+          <span>${item.name} × ${item.quantity}</span>
+          <span>${ShopFlowCart.formatPrice(item.price * item.quantity)}</span>
+        </div>
+      `).join('');
+      document.getElementById('totalPrice').textContent = ShopFlowCart.formatPrice(cartTotal);
+      paySubmitBtn.textContent = `Authorize Order — ${ShopFlowCart.formatPrice(cartTotal)}`;
     }
 
     function executePurchase(e) {
@@ -128,11 +141,12 @@
       adobeTrack('purchase_confirmation', {
         transaction: {
           transactionID: orderRef,
-          transactionTotal: targetProduct.price,
-          itemProfile: targetProduct.name
+          transactionTotal: cartTotal,
+          itemProfile: cart.map(item => `${item.name} × ${item.quantity}`).join(', ')
         }
       });
 
+      ShopFlowCart.clearCart();
       document.getElementById('mainCheckout').style.display = 'none';
       document.getElementById('successPanel').style.display = 'block';
     }
