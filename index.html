@@ -8,24 +8,12 @@
 <script src="https://assets.adobedtm.com/18d6771123cb/9d967cb3ad8c/launch-dc71f2a1bbb4-development.min.js" async></script>
 
   <script>
-    window.digitalData = {
-      page: {
-        pageInfo: {
-          pageName: "shopflow:home",
-          siteSection: "home",
-          server: "production"
-        }
-      },
-      user: { profile: [{ attributes: { loginStatus: "guest" } }] }
-    };
-
-    function adobeTrack(event, data) {
-      window.digitalData = Object.assign(window.digitalData, data || {});
-      if (window._satellite && typeof window._satellite.track === 'function') {
-        window._satellite.track(event, data);
-      }
-      console.log('[Adobe Analytics Event Tracked]', event, data);
-    }
+    window.adobeDataLayer = window.adobeDataLayer || [];
+    window.adobeDataLayer.push({
+      event: "pageLoaded",
+      page: { pageName: "shopflow:home", pageType: "Home", route: "/index.html" },
+      journey: { lastStage: "Home Browse" }
+    });
   </script>
 
   <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -82,7 +70,6 @@
     .aa-badge { position: fixed; bottom: 1.5rem; right: 1.5rem; z-index: 888; background: rgba(255,255,255,0.96); border: 1px solid var(--border); border-radius: var(--radius-md); padding: 0.5rem 0.875rem; font-size: 0.7rem; font-weight: 600; color: var(--ink-muted); display: flex; align-items: center; gap: 0.4rem; }
     .aa-dot { width: 6px; height: 6px; border-radius: 50%; background: #E05A23; }
   </style>
-  <script src="https://assets.adobedtm.com/18d6771123cb/9d967cb3ad8c/launch-38c5a1a5e1b9.min.js" async></script>
 </head>
 <body>
 
@@ -103,8 +90,8 @@
       <h1 class="hero-title">Live with <em>intention</em>, shop with style.</h1>
       <p class="hero-sub">Discover hand-picked furniture, décor, and lifestyle essentials that transform spaces into stories.</p>
       <div class="hero-actions">
-        <a href="shop.html" class="btn-primary" onclick="adobeTrack('cta_click', {eVar1:'hero_shop_now'})">Shop Now</a>
-        <a href="about.html" class="btn-ghost" onclick="adobeTrack('cta_click', {eVar1:'hero_about'})">Our Story</a>
+        <a href="shop.html" class="btn-primary" onclick="adobeDataLayer.push({event:'ctaClick', interaction:{ctaLabel:'hero_shop_now'}})">Shop Now</a>
+        <a href="about.html" class="btn-ghost" onclick="adobeDataLayer.push({event:'ctaClick', interaction:{ctaLabel:'hero_about'}})">Our Story</a>
       </div>
     </div>
     <div class="hero-image">
