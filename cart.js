@@ -113,26 +113,33 @@
     return getCart().reduce((total, item) => total + item.price * item.quantity, 0);
   }
 
-  function addToCart(productId, quantity) {
+  function addToCart(productId, quantity, ctaLabel) {
     const product = products[String(productId)];
     const amount = Number(quantity) || 1;
     if (!product || amount < 1) return false;
-
-    const cart = readCart();
-    const existingItem = cart.find(item => String(item.id) === String(product.id));
+    const cartBefore = readCart();
+    const wasCartEmpty = cartBefore.length === 0;
+    const existingItem = cartBefore.find(item => String(item.id) === String(product.id));
     if (existingItem) {
       existingItem.quantity += amount;
     } else {
-      cart.push({ id: product.id, quantity: amount });
+      cartBefore.push({ id: product.id, quantity: amount });
     }
-    writeCart(cart);
-
-    if (typeof window.adobeTrack === 'function') {
-      window.adobeTrack('cart_add', {
-        product: [{ productInfo: { productID: product.id, productName: product.name }, quantity: amount }],
-        products: `;${product.id};;;${amount}`
-      });
-    }
+    writeCart(cartBefore);
+    window.adobeDataLayer = window.adobeDataLayer || [];
+    window.adobeDataLayer.push({
+      event: 'addToCart',
+      interaction: { ctaLabel: ctaLabel || 'Add to Cart' },
+      commerce: { cartEmpty: wasCartEmpty },
+      journey: { lastStage: 'Cart Added' },
+      products: [{
+        sku: 'SF-' + product.id,
+        name: product.name,
+        category: product.cat,
+        price: product.price,
+        quantity: amount
+      }]
+    });
     return true;
   }
 
@@ -147,7 +154,21 @@
   }
 
   function removeFromCart(productId) {
+    const removedItem = getCart().find(item => String(item.id) === String(productId));
     writeCart(readCart().filter(item => String(item.id) !== String(productId)));
+    if (removedItem) {
+      window.adobeDataLayer = window.adobeDataLayer || [];
+      window.adobeDataLayer.push({
+        event: 'removeFromCart',
+        products: [{
+          sku: 'SF-' + removedItem.id,
+          name: removedItem.name,
+          category: removedItem.cat,
+          price: removedItem.price,
+          quantity: removedItem.quantity
+        }]
+      });
+    }
   }
 
   function clearCart() {
@@ -181,4 +202,24 @@
 
   document.addEventListener('DOMContentLoaded', updateCartCount);
   window.addEventListener('storage', updateCartCount);
+
+  const firedScrolls = new Set();
+  window.addEventListener('scroll', function () {
+    const state = window.adobeDataLayer && window.adobeDataLayer.getState ? window.adobeDataLayer.getState() : {};
+    const pageType = state.page && state.page.pageType;
+    if (pageType !== 'PLP' && pageType !== 'PDP') return;
+    const scrollTop = window.scrollY || document.documentElement.scrollTop;
+    const docHeight = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+    if (docHeight <= 0) return;
+    const pct = Math.round((scrollTop / docHeight) * 100);
+    [25, 50, 75, 100].forEach(function (threshold) {
+      if (pct >= threshold && !firedScrolls.has(threshold)) {
+        firedScrolls.add(threshold);
+        window.adobeDataLayer.push({
+          event: 'scrollDepth',
+          scroll: { threshold: threshold + '%', pageType: pageType }
+        });
+      }
+    });
+  }, { passive: true });
 })();
