@@ -8,23 +8,12 @@
 <script src="https://assets.adobedtm.com/18d6771123cb/9d967cb3ad8c/launch-dc71f2a1bbb4-development.min.js" async></script>
 
   <script>
-    window.digitalData = {
-      page: {
-        pageInfo: {
-          pageName: "shopflow:product_detail",
-          siteSection: "shop",
-          server: "production"
-        }
-      },
-      product: []
-    };
-
-    function adobeTrack(event, data) {
-      window.digitalData = Object.assign(window.digitalData, data || {});
-      if (window._satellite && typeof window._satellite.track === 'function') {
-        window._satellite.track(event, data);
-      }
-    }
+    window.adobeDataLayer = window.adobeDataLayer || [];
+    window.adobeDataLayer.push({
+      event: "pageLoaded",
+      page: { pageName: "shopflow:product_detail", pageType: "PDP", route: window.location.pathname + window.location.search },
+      journey: { lastStage: "PDP View" }
+    });
   </script>
 
   <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -60,7 +49,6 @@
     .btn-add-cart { padding: 1rem; background: var(--accent); color: #fff; border: none; border-radius: var(--radius-md); font-size: 1rem; font-weight: 600; cursor: pointer; transition: background var(--trans); text-decoration: none; text-align: center; }
     .btn-add-cart:hover { background: var(--accent-hover); }
   </style>
-  <script src="https://assets.adobedtm.com/18d6771123cb/9d967cb3ad8c/launch-38c5a1a5e1b9.min.js" async></script>
 </head>
 <body>
 
@@ -92,12 +80,16 @@
         </div>
       `;
 
-      // Update Analytics Schema context dynamically
-      window.digitalData.product = [{
-        productInfo: { productID: product.id, productName: product.name },
-        price: product.price
-      }];
-      adobeTrack('product_view', { eVar5: product.name, products: `;${product.id};;;` });
+      window.adobeDataLayer.push({
+        event: "productView",
+        products: [{
+          sku: "SF-" + product.id,
+          name: product.name,
+          category: product.cat,
+          price: product.price,
+          quantity: 1
+        }]
+      });
     }
 
     function addProductToCart(productId, button) {
