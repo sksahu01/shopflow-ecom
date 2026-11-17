@@ -8,23 +8,12 @@
 <script src="https://assets.adobedtm.com/18d6771123cb/9d967cb3ad8c/launch-dc71f2a1bbb4-development.min.js" async></script>
 
   <script>
-    window.digitalData = {
-      page: {
-        pageInfo: {
-          pageName: "shopflow:product_listing",
-          siteSection: "shop",
-          server: "production"
-        }
-      },
-      category: { primaryCategory: "All" }
-    };
-
-    function adobeTrack(event, data) {
-      window.digitalData = Object.assign(window.digitalData, data || {});
-      if (window._satellite && typeof window._satellite.track === 'function') {
-        window._satellite.track(event, data);
-      }
-    }
+    window.adobeDataLayer = window.adobeDataLayer || [];
+    window.adobeDataLayer.push({
+      event: "pageLoaded",
+      page: { pageName: "shopflow:product_listing", pageType: "PLP", route: "/shop.html" },
+      journey: { lastStage: "PLP Browse" }
+    });
   </script>
 
   <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -72,7 +61,6 @@
     .view-btn:hover { background: var(--accent); color: #fff; border-color: var(--accent); }
     @media (max-width: 700px) { .product-img-wrap { height: 220px; } }
   </style>
-  <script src="https://assets.adobedtm.com/18d6771123cb/9d967cb3ad8c/launch-38c5a1a5e1b9.min.js" async></script>
 </head>
 <body>
 
@@ -118,9 +106,9 @@
         </div>
       `).join('');
 
-      adobeTrack('product_listing_view', { 
-        category: { primaryCategory: filter },
-        list1: items.map(p => p.id).join(',')
+      window.adobeDataLayer.push({
+        event: "plpFilterView",
+        navigation: { ctaSource: "PLP Filter: " + filter }
       });
     }
 
