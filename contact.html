@@ -5,26 +5,16 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Contact Us — ShopFlow</title>
 
-<script src="https://assets.adobedtm.com/18d6771123cb/9d967cb3ad8c/launch-dc71f2a1bbb4-development.min.js" async></script>
-
   <script>
-    window.digitalData = {
-      page: {
-        pageInfo: {
-          pageName: "shopflow:contact_us",
-          siteSection: "corporate_relations",
-          server: "production"
-        }
-      }
-    };
-
-    function adobeTrack(event, data) {
-      window.digitalData = Object.assign(window.digitalData, data || {});
-      if (window._satellite && typeof window._satellite.track === 'function') {
-        window._satellite.track(event, data);
-      }
-    }
+    window.adobeDataLayer = window.adobeDataLayer || [];
+    window.adobeDataLayer.push({
+      event: "pageLoaded",
+      page: { pageName: "shopflow:contact_us", pageType: "Contact", route: "/contact.html" },
+      journey: { lastStage: "Contact Page" }
+    });
   </script>
+
+  <script src="https://assets.adobedtm.com/18d6771123cb/9d967cb3ad8c/launch-dc71f2a1bbb4-development.min.js" async></script>
 
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -66,7 +56,6 @@
     .btn-submit:hover { background: var(--accent-hover); }
     .success-msg { display: none; background: #EAF5EF; color: #276749; padding: 1rem; border-radius: var(--radius-sm); text-align: center; font-size: 0.9rem; font-weight: 500; margin-top: 1rem; }
   </style>
-  <script src="https://assets.adobedtm.com/18d6771123cb/9d967cb3ad8c/launch-38c5a1a5e1b9.min.js" async></script>
 </head>
 <body>
 
@@ -106,20 +95,41 @@
   </div>
 
   <script>
+    let contactFormStarted = false;
+    const contactFormEl = document.getElementById('contactForm');
+
+    contactFormEl.addEventListener('focusin', function () {
+      if (!contactFormStarted) {
+        contactFormStarted = true;
+        window.adobeDataLayer.push({
+          event: "formStart",
+          form: { formAndCategory: "Contact Us Form | Interior Query" }
+        });
+      }
+    });
+
+    contactFormEl.addEventListener('invalid', function (ev) {
+      window.adobeDataLayer.push({
+        event: "formError",
+        form: {
+          formAndCategory: "Contact Us Form | Interior Query",
+          errorField: ev.target.id,
+          errorMessage: ev.target.validationMessage
+        }
+      });
+    }, true);
+
     function handleContactSubmit(e) {
       e.preventDefault();
-      
-      const identity = document.getElementById('contactName').value;
-      const contextEmail = document.getElementById('contactEmail').value;
-      
-      // Execute Analytics Event Dispatch
-      adobeTrack('lead_generation_submit', {
-        eVar17: "contact_form_submission",
-        eVar18: contextEmail,
-        prop2: identity
+      const queryId = 'QRY-' + Math.floor(100000 + Math.random() * 900000);
+      window.adobeDataLayer.push({
+        event: "formSubmit",
+        form: {
+          formAndCategory: "Contact Us Form | Interior Query",
+          submissionId: queryId
+        }
       });
-      
-      document.getElementById('contactForm').style.display = 'none';
+      contactFormEl.style.display = 'none';
       document.getElementById('submissionSuccess').style.display = 'block';
     }
   </script>
