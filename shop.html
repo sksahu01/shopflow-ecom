@@ -119,7 +119,8 @@
     }
 
     function addCatalogItem(productId, button) {
-      if (!ShopFlowCart.addToCart(productId)) return;
+      const ctaText = button && button.textContent ? button.textContent.trim() : 'Add to Cart';
+      if (!ShopFlowCart.addToCart(productId, 1, ctaText)) return;
       const originalLabel = button.textContent;
       button.textContent = 'Added to Cart';
       button.disabled = true;
