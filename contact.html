@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Contact Us — ShopFlow</title>
+  <title>Contact Us - ShopFlow</title>
 
   <script>
     window.adobeDataLayer = window.adobeDataLayer || [];
@@ -103,7 +103,12 @@
         contactFormStarted = true;
         window.adobeDataLayer.push({
           event: "formStart",
-          form: { formAndCategory: "Contact Us Form | Interior Query" }
+          form: {
+            formAndCategory: "Contact Us Form | Interior Query",
+            errorField: "",
+            errorMessage: "",
+            submissionId: ""
+          }
         });
       }
     });
@@ -114,7 +119,8 @@
         form: {
           formAndCategory: "Contact Us Form | Interior Query",
           errorField: ev.target.id,
-          errorMessage: ev.target.validationMessage
+          errorMessage: ev.target.validationMessage,
+          submissionId: ""
         }
       });
     }, true);
@@ -126,6 +132,8 @@
         event: "formSubmit",
         form: {
           formAndCategory: "Contact Us Form | Interior Query",
+          errorField: "",
+          errorMessage: "",
           submissionId: queryId
         }
       });
