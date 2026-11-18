@@ -187,6 +187,23 @@
     return `₹${price.toLocaleString('en-IN')}`;
   }
 
+  function resolveCurrentPageType() {
+    const dl = window.adobeDataLayer;
+    if (!dl) return undefined;
+    if (typeof dl.getState === 'function') {
+      const state = dl.getState();
+      if (state && state.page && state.page.pageType) return state.page.pageType;
+    }
+    if (Array.isArray(dl)) {
+      for (let i = dl.length - 1; i >= 0; i--) {
+        if (dl[i] && dl[i].page && dl[i].page.pageType) {
+          return dl[i].page.pageType;
+        }
+      }
+    }
+    return undefined;
+  }
+
   window.ShopFlowCart = {
     products,
     addToCart,
@@ -205,8 +222,7 @@
 
   const firedScrolls = new Set();
   window.addEventListener('scroll', function () {
-    const state = window.adobeDataLayer && window.adobeDataLayer.getState ? window.adobeDataLayer.getState() : {};
-    const pageType = state.page && state.page.pageType;
+    const pageType = resolveCurrentPageType();
     if (pageType !== 'PLP' && pageType !== 'PDP') return;
     const scrollTop = window.scrollY || document.documentElement.scrollTop;
     const docHeight = document.documentElement.scrollHeight - document.documentElement.clientHeight;
@@ -215,6 +231,7 @@
     [25, 50, 75, 100].forEach(function (threshold) {
       if (pct >= threshold && !firedScrolls.has(threshold)) {
         firedScrolls.add(threshold);
+        window.adobeDataLayer = window.adobeDataLayer || [];
         window.adobeDataLayer.push({
           event: 'scrollDepth',
           scroll: { threshold: threshold + '%', pageType: pageType }
