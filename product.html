@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>View Item — ShopFlow</title>
+  <title>View Item - ShopFlow</title>
 
   <script>
     window.adobeDataLayer = window.adobeDataLayer || [];
@@ -93,7 +93,8 @@
     }
 
     function addProductToCart(productId, button) {
-      if (!ShopFlowCart.addToCart(productId)) return;
+      const ctaText = button && button.textContent ? button.textContent.trim() : 'Add to Cart';
+      if (!ShopFlowCart.addToCart(productId, 1, ctaText)) return;
       button.textContent = 'Added to Cart';
       button.disabled = true;
     }
