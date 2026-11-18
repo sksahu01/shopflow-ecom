@@ -13,7 +13,7 @@
     });
   </script>
 
-    <script src="https://assets.adobedtm.com/18d6771123cb/9d967cb3ad8c/launch-dc71f2a1bbb4-development.min.js" async></script>
+  <script src="https://assets.adobedtm.com/18d6771123cb/9d967cb3ad8c/launch-dc71f2a1bbb4-development.min.js" async></script>
 
   <script src="cart.js"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -68,9 +68,9 @@
     <div id="cartContent"></div>
   </main>
   <script>
-    function renderCart() {
+    function renderCart(trackView = false) {
       const cart = ShopFlowCart.getCart();
-      if (cart.length) {
+      if (trackView && cart.length) {
         window.adobeDataLayer.push({
           event: "cartView",
           products: cart.map(item => ({
@@ -123,16 +123,16 @@
         return;
       }
       ShopFlowCart.updateQuantity(productId, quantity);
-      renderCart();
+      renderCart(false);
     }
 
     function removeItem(productId) {
       ShopFlowCart.removeFromCart(productId);
-      renderCart();
+      renderCart(false);
     }
 
-    window.addEventListener('shopflow:cart-updated', renderCart);
-    renderCart();
+    window.addEventListener('shopflow:cart-updated', () => renderCart(false));
+    renderCart(true);
   </script>
 </body>
 </html>
